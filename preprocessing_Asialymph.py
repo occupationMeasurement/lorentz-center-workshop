@@ -65,7 +65,7 @@ def load_and_preprocess_csv(file_path, min_combined_length=10, to_lower=True, to
 
 
 # Example usage
-# csv_file_path = 'ALtrainingdata_workshop.csv' # Replace with the path to your coding index file
+# csv_file_path = 'ALtrainingdata_workshop.csv'
 # min_length = 4
 # preprocessed_data_all = load_and_preprocess_csv(csv_file_path, min_combined_length=min_length,
 #                                             to_lower=False, to_upper=False,
