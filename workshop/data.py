@@ -31,9 +31,6 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def clean_freetext_col(col: pd.Series) -> pd.Series:
-
-    print("Test")
-
     # Remove all non-alphanumeric characters
     col = col.str.replace('[^0-9a-zA-Z.,-/!()+ ]', '', regex=True)
 
