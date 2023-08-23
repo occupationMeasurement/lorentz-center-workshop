@@ -37,7 +37,7 @@ def load_and_preprocess_csv(file_path, min_combined_length=10, to_lower=True, to
     try:
         data = pd.read_csv(file_path, dtype={'isco88': str})
 
-        if 'job_title' in data.columns and 'job_duties' in data.columns and 'nci_trainingID' in data.columns and 'isco88' in data.columns:
+        if 'job_title' in data.columns and 'job_duties' in data.columns and ('nci_trainingID' in data.columns or 'ID' in data.columns) and 'isco88' in data.columns:
             data['combined_text'] = data['job_title'].fillna('') + ' ' + data['job_duties'].fillna('')
             data = data[data['combined_text'].str.strip() != '']
             data = data[data['combined_text'].str.len() >= min_combined_length]
@@ -58,7 +58,7 @@ def load_and_preprocess_csv(file_path, min_combined_length=10, to_lower=True, to
 
             return data
         else:
-            raise ValueError("The CSV must contain columns 'job_title', 'job_duties', 'nci_trainingID', and 'isco88'.")
+            raise ValueError("The CSV must contain columns 'job_title', 'job_duties', 'nci_trainingID' (or ID), and 'isco88'.")
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
