@@ -1,6 +1,8 @@
 import pandas as pd
 from pathlib import Path
 
+from .config import default_config
+
 DATA_DIR = Path() / "data"
 
 def load_data(clean = True) -> pd.DataFrame:
@@ -25,9 +27,6 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     # Drop all rows where BOTH job_title and job_duties are NA
     df = df.dropna(subset=["job_title", "job_duties"], how="all")
 
-    df["job_title"] = clean_freetext_col(df["job_title"])
-    df["job_duties"] = clean_freetext_col(df["job_duties"])
-
     return df
 
 def clean_freetext_col(col: pd.Series) -> pd.Series:
@@ -35,4 +34,19 @@ def clean_freetext_col(col: pd.Series) -> pd.Series:
     col = col.str.replace('[^0-9a-zA-Z.,-/!()+ ]', '', regex=True)
 
     return col
+
+def preprocess_data(df: pd.DataFrame, config: dict = default_config) -> pd.DataFrame:
+    # Combine job_title and job_duties into one column
+    df["job_text"] = df["job_title"].fillna('') + " " + df["job_duties"].fillna('')
+    # Drop the original columns
+    df = df.drop(columns=["job_title", "job_duties"])
+
+    df["job_text"] = clean_freetext_col(df["job_text"])
+
+    # Classic text-preprocessing steps
+
+    if config["capitalization"]:
+        df["job_text"] = df["job_text"].str.lower()
+
+    return df
 

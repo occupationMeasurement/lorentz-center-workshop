@@ -7,6 +7,8 @@ name = "pypi"
 pandas = "*"
 workshop = {editable = true, path = "./workshop"}
 nbstripout = "*"
+scikit-learn = "*"
+fasttext = "*"
 
 [dev-packages]
 ipykernel = "*"
