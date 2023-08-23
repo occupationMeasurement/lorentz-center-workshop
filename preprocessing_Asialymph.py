@@ -32,25 +32,29 @@ def stem_text(text):
     return " ".join(stemmed_tokens)
 
 
-def load_and_preprocess_csv(file_path, min_combined_length=10, to_lower=True, to_upper=False, remove_punctuation=True,
-                            remove_chinese=True, stem=False):
+def load_and_preprocess_csv(file_path, min_combined_length=10, to_lower=True, to_upper=False,
+                            remove_punctuation=True, remove_chinese=True, stem=False, only_4digit=False, only_exist=False):
     try:
         data = pd.read_csv(file_path, dtype={'isco88': str})
 
         if 'job_title' in data.columns and 'job_duties' in data.columns and 'nci_trainingID' in data.columns and 'isco88' in data.columns:
-
-            # Concatenate 'job_title' and 'job_duties'
             data['combined_text'] = data['job_title'].fillna('') + ' ' + data['job_duties'].fillna('')
-
-            # Remove rows where combined_text is empty
             data = data[data['combined_text'].str.strip() != '']
-
-            # Filter out rows with combined_text length less than min_combined_length
             data = data[data['combined_text'].str.len() >= min_combined_length]
+            data['combined_text'] = data['combined_text'].apply(lambda x: preprocess_text(x, to_lower, to_upper,
+                                                                                          remove_punctuation,
+                                                                                          remove_chinese, stem))
+            if only_exist:
+                coding_index = pd.read_excel("ISCO88_all_groups.xlsx", dtype={'ISCO88_4D': str})
+                valid_isco88_codes = set(coding_index['ISCO88_4D'])
+                data = data[data['isco88'].isin(valid_isco88_codes)]
 
-            # Apply preprocessing to the combined text
-            data['combined_text'] = data['combined_text'].apply(
-                lambda x: preprocess_text(x, to_lower, to_upper, remove_punctuation, remove_chinese, stem))
+            if only_4digit:
+                # Load coding index
+                coding_index = pd.read_excel("ISCO88_all_groups.xlsx", dtype={'ISCO88': str})
+                coding_index = coding_index[coding_index['ISCO88'].str.match('^\d{4}$', na=False)]
+                valid_isco88_codes = set(coding_index['ISCO88'])
+                data = data[data['isco88'].isin(valid_isco88_codes)]
 
             return data
         else:
@@ -61,7 +65,9 @@ def load_and_preprocess_csv(file_path, min_combined_length=10, to_lower=True, to
 
 
 # Example usage
-# csv_file_path = 'ALtrainingdata_workshop.csv'
-# min_length = 4  # Adjust the minimum combined text length as needed
-# preprocessed_data = load_and_preprocess_csv(csv_file_path, min_combined_length=min_length, to_lower=False, to_upper=False,
-#                                             remove_punctuation=True, remove_chinese=True, stem=False)
+# csv_file_path = 'ALtrainingdata_workshop.csv' # Replace with the path to your coding index file
+# min_length = 4
+# preprocessed_data_all = load_and_preprocess_csv(csv_file_path, min_combined_length=min_length,
+#                                             to_lower=False, to_upper=False,
+#                                             remove_punctuation=True, remove_chinese=True, stem=False, only_4digit=False,
+#                                             only_exist=False)
