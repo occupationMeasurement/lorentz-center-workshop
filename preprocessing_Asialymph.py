@@ -2,8 +2,6 @@ import pandas as pd
 import re
 import string
 import zhon.hanzi as zh
-import nltk
-import spacy
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 
