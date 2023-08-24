@@ -1,6 +1,7 @@
 import pandas as pd
 import fasttext
 import fasttext.util
+from sklearn.feature_extraction.text import CountVectorizer
 
 from .config import default_config
 
@@ -23,6 +24,12 @@ def get_embeddings(df: pd.DataFrame, config: dict = default_config) -> pd.DataFr
             result_type='expand',
             axis=1,
         )
+    elif config["embeddings_engine"] == "bag_of_words":
+        # Create a bag of words (using default settings)
+        count_vect = CountVectorizer()
+        counts = count_vect.fit_transform(df["combined_text"])
+        df = pd.DataFrame(counts.todense(), columns=count_vect.get_feature_names_out())
+
 
     # Drop the original text column (and the target)
     if "combined_text" in df.columns:
