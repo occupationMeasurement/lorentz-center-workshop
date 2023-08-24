@@ -69,5 +69,5 @@ def load_and_preprocess_csv(file_path, min_combined_length=10, to_lower=True, to
 # min_length = 4
 # preprocessed_data_all = load_and_preprocess_csv(csv_file_path, min_combined_length=min_length,
 #                                             to_lower=False, to_upper=False,
-#                                             remove_punctuation=True, remove_chinese=True, stem=False, only_4digit=False,
-#                                             only_exist=False)
+#                                             remove_punctuation=True, remove_chinese=True, stem=False, only_4digit=True,
+#                                             only_exist=True)
