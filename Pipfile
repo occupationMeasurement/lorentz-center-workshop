@@ -9,6 +9,8 @@ workshop = {editable = true, path = "./workshop"}
 nbstripout = "*"
 scikit-learn = "==1.2.2"
 fasttext = "*"
+nltk = "*"
+zhon = "*"
 xgboost = "*"
 
 [dev-packages]
