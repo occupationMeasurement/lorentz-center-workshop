@@ -8,7 +8,9 @@ DATA_DIR = Path() / "data"
 
 def load_and_preprocess_data(config: dict = default_config) -> pd.DataFrame:
     df = load_and_preprocess_csv(
-        DATA_DIR / "Training_data" / "ALtrainingdata_workshop.csv"
+        DATA_DIR / "Training_data" / "ALtrainingdata_workshop.csv",
+        only_4digit=True,
+        only_exist=True,
     )
 
     return df

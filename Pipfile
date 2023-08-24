@@ -12,6 +12,7 @@ fasttext = "*"
 nltk = "*"
 zhon = "*"
 xgboost = "*"
+openpyxl = "*"
 
 [dev-packages]
 ipykernel = "*"
