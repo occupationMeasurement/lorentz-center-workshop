@@ -66,7 +66,7 @@ def load_and_preprocess_csv(file_path, min_combined_length=10, to_lower=True, to
 
 # Example usage
 # csv_file_path = 'ALtrainingdata_workshop.csv'
-# min_length = 4
+# min_length = 3
 # preprocessed_data_all = load_and_preprocess_csv(csv_file_path, min_combined_length=min_length,
 #                                             to_lower=True, to_upper=False,
 #                                             remove_punctuation=True, remove_chinese=True, stem=False, only_4digit=True,
