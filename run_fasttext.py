@@ -38,20 +38,20 @@ def main():
                                           minCount = 1,
                                           pretrainedVectors = 'crawl-300d-2M-subword.vec')
     
-    agg_results = model.test(path + "Input/raw_test.txt")
+    agg_results = model.test("AL_ft_test.txt")
     
     print(agg_results)
     
-    occupation_results = model.test_label(path + "Input/raw_test.txt")
+    occupation_results = model.test_label("AL_ft_test.txt")
     
     occs = pd.DataFrame.from_dict(occupation_results, orient = "index")
     
-    occs.to_pickle(path+"Output/f2_ft_20230712.pkl")
+    occs.to_pickle("./Output/AL_ISCO_f1_ft_20230823.pkl")
     
     print(np.mean(occs.f1score))
     print(np.std(occs.f1score))
     
-    model.save_model(path+'/Output/dim_10_20230712.bin')
+    model.save_model('./Output/AL_ISCO_ft_dim_300_20230823.bin')
     
 ###########################################################
 ### start main
