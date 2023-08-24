@@ -4,6 +4,7 @@ import string
 import zhon.hanzi as zh
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
+from sklearn.model_selection import train_test_split
 
 
 def preprocess_text(text, to_lower=True, to_upper=False, remove_punctuation=True, remove_chinese=True, stem=False):
@@ -62,12 +63,34 @@ def load_and_preprocess_csv(file_path, min_combined_length=10, to_lower=True, to
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
-
+    
+def train_split(dataset, split_size = 0.2, stratify = True):
+    try:
+        if 'isco88' in dataset.columns:
+            if stratify:
+                # Filter classes with 1 occurrence
+                dataset = dataset.groupby(['isco88']).filter(lambda group: len(group)>1)
+                train, test = train_test_split(dataset, 
+                                           test_size=split_size, random_state=3, 
+                                           stratify=dataset.loc[:,'isco88'])
+                return train, test
+            else:
+                train, test = train_test_split(dataset, 
+                                           test_size=split_size, random_state=3, 
+                                           stratify=dataset.loc[:,'isco88'])
+                return train, test
+        else:
+            raise ValueError("The CSV must contain column 'isco88'.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
 
 # Example usage
-# csv_file_path = 'ALtrainingdata_workshop.csv'
+#csv_file_path = 'ALtrainingdata_workshop.csv'
 # min_length = 3
 # preprocessed_data_all = load_and_preprocess_csv(csv_file_path, min_combined_length=min_length,
 #                                             to_lower=True, to_upper=False,
 #                                             remove_punctuation=True, remove_chinese=True, stem=False, only_4digit=True,
 #                                             only_exist=True)
+
+# test, train = train_split(preprocessed_data_all)
