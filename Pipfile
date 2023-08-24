@@ -9,6 +9,7 @@ workshop = {editable = true, path = "./workshop"}
 nbstripout = "*"
 scikit-learn = "==1.2.2"
 fasttext = "*"
+xgboost = "*"
 
 [dev-packages]
 ipykernel = "*"
