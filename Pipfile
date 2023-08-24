@@ -13,6 +13,8 @@ nltk = "*"
 zhon = "*"
 xgboost = "*"
 openpyxl = "*"
+mlflow = "==2.5.0"
+pydantic = "==1.10.12"
 
 [dev-packages]
 ipykernel = "*"

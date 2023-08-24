@@ -1,3 +1,4 @@
+import mlflow
 import pandas as pd
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -6,6 +7,9 @@ from xgboost import XGBClassifier
 from .config import default_config
 
 def train_model(X_train: pd.DataFrame, Y_train: pd.Series, config: dict = default_config):
+    mlflow.autolog(log_models=False)
+    mlflow.set_tags(default_config)
+
     if (config["model"] == "gradient_boosting"):
         model = GradientBoostingClassifier()
         model.fit(X_train, Y_train)
