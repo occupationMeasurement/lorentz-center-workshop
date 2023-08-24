@@ -21,7 +21,7 @@ import pandas as pd
 import os
 import sys
 sys.path.append("C:\\Users\\Dabed001\\Documents\\GitHub\\lorentz-center-workshop\\")
-from preprocessing_Asialymph import preprocess_text
+from preprocessing_Asialymph import preprocess_text, load_and_preprocess_csv
 from sklearn.model_selection import train_test_split
 
 ###########################################################
