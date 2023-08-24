@@ -1,6 +1,8 @@
 # Brainstorming session 
 
-The ML-Pipeline inlcudes (1) Preprocessing, (2) generation of embeddings, and (3) classification. In the brainstorming session we found the following to be relevant:
+The ML-Pipeline includes (1) preprocessing, (2) representation of textual data (e.g. embeddings), and (3) classification.
+
+In the brainstorming session we found the following to be relevant:
 
 ## Preprocessing
 
@@ -16,11 +18,12 @@ Whether and how to do preprocessing may depend on the later steps in the pipelin
 
 For tokenization one may consider the following (unclear what is best):
 
-- lemmatization, 
-- stemming,
-The usage of either lemmatization or stemming will also depend on the following ML/DL model that will be used. For example, pre-trained LLMs (e.g., BERT) are usually trained on large volumes of data with complete words. If inputs are stemmed/lemmatized, this type of model might not recognize such words to the same extent that it would recognize (and 'correctly' embed) full words on which it was trained. Therefore, one might consider not using these types of pre-processing strategies in such a scenario. However, in the case of usage with e.g., bag of words, one might benefit from increased standardization. This could possibly remove irrelevant 'noisy' words, limiting the vocabulary and therefore possibly improving generalization and subsequent model performance.
+- lemmatization
+- stemming
 - hyphenation
 - n-grams
+
+The usage of either lemmatization or stemming will also depend on the following ML/DL model that will be used. For example, pre-trained LLMs (e.g., BERT) are usually trained on large volumes of data with complete words. If inputs are stemmed/lemmatized, this type of model might not recognize such words to the same extent that it would recognize (and 'correctly' embed) full words on which it was trained. Therefore, one might consider not using these types of pre-processing strategies in such a scenario. However, in the case of usage with e.g., bag of words, one might benefit from increased standardization. This could possibly remove irrelevant 'noisy' words, limiting the vocabulary and therefore possibly improving generalization and subsequent model performance.
 
 ### Special considerations for occupation data
 
@@ -51,6 +54,7 @@ Possibilities include:
 - Embeddings from BERT-like models
 - OpenGPT
 - Llama
+- Embedding models fine tuned to occupation data e.g. https://github.com/junhua/ipod (or probably a more modern version of these)
 
 ## Classification
 
@@ -73,4 +77,5 @@ Considerations for tuning:
 
 - Finetuning
 - Freezing Layers?
+- 
 Unfreezing layers could potentially improve within distribution/database performance, but could decrease generalization capabilities (i.e., out-of-distribution performance). One could view the number of frozen layers as a hyperparameter, and determine its effect on the within and outside of distribution performance.
