@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import RandomizedSearchCV
+from sklearn import preprocessing
 from xgboost import XGBClassifier
 
 from .config import default_config
@@ -11,12 +12,18 @@ def train_model(X_train: pd.DataFrame, Y_train: pd.Series, config: dict = defaul
     mlflow.autolog(log_models=False)
     mlflow.set_tags(default_config)
 
+    train_output = dict()
+
     if (config["model"] == "gradient_boosting"):
         model = GradientBoostingClassifier()
         model.fit(X_train, Y_train)
     elif (config["model"] == "xgboost"):
-        model = XGBClassifier(objective='multi:softprob') # , num_class=Y_train.unique().size
-        model.fit(X_train, Y_train)
+        encoder = preprocessing.LabelEncoder().fit(Y_train)
+        model = XGBClassifier(
+            objective='multi:softmax',
+        )
+        model.fit(X_train, encoder.transform(Y_train))
+        train_output["encoder"] = encoder
     elif (config["model"] == "knn"):
         model_type = KNeighborsClassifier()
         param_distributions = {'n_neighbors': range(1, 10)}
@@ -31,11 +38,18 @@ def train_model(X_train: pd.DataFrame, Y_train: pd.Series, config: dict = defaul
     else:
         raise ValueError("Unknown model type")
 
-    return model
+    train_output["model"] = model
 
-def predict(model, X_test: pd.DataFrame, config: dict = default_config) -> pd.Series:
-    if (config["model"] == "gradient_boosting" or config["model"] == "knn" or config["model"] == "xgboost"):
+    return train_output
+
+def predict(train_output, X_test: pd.DataFrame, config: dict = default_config) -> pd.Series:
+    model = train_output["model"]
+
+    if (config["model"] == "gradient_boosting" or config["model"] == "knn"):
         y_pred = model.predict(X_test)
+    elif (config["model"] == "xgboost"):
+        encoder = train_output["encoder"]
+        y_pred = encoder.inverse_transform(model.predict(X_test))
     else:
         raise ValueError("Unknown model type")
 
