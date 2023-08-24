@@ -21,8 +21,7 @@ import pandas as pd
 import os
 import sys
 sys.path.append("C:\\Users\\Dabed001\\Documents\\GitHub\\lorentz-center-workshop\\")
-from preprocessing_Asialymph import preprocess_text, load_and_preprocess_csv
-from sklearn.model_selection import train_test_split
+from preprocessing_Asialymph import preprocess_text, load_and_preprocess_csv, train_split
 
 ###########################################################
 ### write_for_fasttext(df, name_col, name)
@@ -53,7 +52,6 @@ def write_for_fasttext(df, name_col_text, name_col_label, name):
     return
 
 
-###########################################################
 
 ###########################################################
 ### main
@@ -68,6 +66,7 @@ def main():
     soc_definitions = pd.read_excel("soc_2010_definitions.xls")
     soc_train_data = pd.read_csv("SOCtrainingdata_workshop.csv")
     AL_train_data = pd.read_csv("ALtrainingdata_workshop.csv")
+    ISCO_alt_titles = pd.read_csv('ISCO-88 EN Structure and defnitions.xlsx')
     
     # Prepare data
     soc_alt = pd.melt(soc_alt_titles, id_vars=['O*NET-SOC Code'], 

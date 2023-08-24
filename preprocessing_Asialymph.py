@@ -76,8 +76,7 @@ def train_split(dataset, split_size = 0.2, stratify = True):
                 return train, test
             else:
                 train, test = train_test_split(dataset, 
-                                           test_size=split_size, random_state=3, 
-                                           stratify=dataset.loc[:,'isco88'])
+                                           test_size=split_size, random_state=3)
                 return train, test
         else:
             raise ValueError("The CSV must contain column 'isco88'.")
