@@ -2,6 +2,7 @@ import mlflow
 import pandas as pd
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import RandomizedSearchCV
 from xgboost import XGBClassifier
 
 from .config import default_config
@@ -17,8 +18,16 @@ def train_model(X_train: pd.DataFrame, Y_train: pd.Series, config: dict = defaul
         model = XGBClassifier(objective='multi:softprob') # , num_class=Y_train.unique().size
         model.fit(X_train, Y_train)
     elif (config["model"] == "knn"):
-        model = KNeighborsClassifier()
-        model.fit(X_train, Y_train)
+        model_type = KNeighborsClassifier()
+        param_distributions = {'n_neighbors': range(1, 10)}
+        cv = RandomizedSearchCV(
+            model_type,
+            param_distributions=param_distributions,
+            cv=5,
+            n_jobs=-1,
+        )
+        cv.fit(X_train, Y_train)
+        model = cv.best_estimator_
     else:
         raise ValueError("Unknown model type")
 
