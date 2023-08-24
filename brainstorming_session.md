@@ -1,4 +1,4 @@
-# Brainstorming session
+# Brainstorming session 
 
 The ML-Pipeline inlcudes (1) Preprocessing, (2) generation of embeddings, and (3) classification. In the brainstorming session we found the following to be relevant:
 
