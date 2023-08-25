@@ -79,6 +79,8 @@ Considerations for tuning:
 - Finetuning
 - Freezing Layers?
 
+Unfreezing layers could potentially improve within distribution/database performance, but could decrease generalization capabilities (i.e., out-of-distribution performance). One could view the number of frozen layers as a hyperparameter, and determine its effect on the within and outside of distribution performance.
+
 ## Evaluation
 
 More than one category can often be considered correct: Coders may select multiple appropriate categories if asked to. This is called "multi-label classification". Should we think about occupation coding in these terms? While we endorse this approach, we the following is about single-label evaluation.
@@ -104,5 +106,3 @@ How can we make use of predicted "probabilities"?
 Are additional metrics helpful if they are directly related to the coding system or the application?
 
 In general we recommend using diagrams. Maybe this allows to show all accuracies (in different colors) for all category at each level of the hierarchy.
-- 
-Unfreezing layers could potentially improve within distribution/database performance, but could decrease generalization capabilities (i.e., out-of-distribution performance). One could view the number of frozen layers as a hyperparameter, and determine its effect on the within and outside of distribution performance.
