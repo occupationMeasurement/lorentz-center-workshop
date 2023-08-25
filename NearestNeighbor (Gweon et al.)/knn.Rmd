@@ -1,0 +1,146 @@
+---
+title: "Leiden Workshop AL dataset"
+author: "Malte Schierholz"
+date: "2023-08-24"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load data
+
+Prepare data using preprocessing_Asialymph.py:
+
+```         
+preprocessed_data = load_and_preprocess_csv(csv_file_path, min_combined_length=3, to_lower=True, to_upper=False,remove_punctuation=True, remove_chinese=True, stem=False, only_4digit=True, only_exist=True)
+
+train, test = train_split(preprocessed_data, stratify=True)
+```
+
+```{r}
+library(occupationCoding)
+library(data.table)
+
+setwd("D:/Desktop/lorentz/Data/Data/")
+
+training <- fread("Training_data/ALtrainingdata_workshop_preprocessed_train.csv", colClasses = "character")
+
+# our own splitting of the training data
+# test <- fread("Training_data/ALtrainingdata_workshop_preprocessed_test.csv", colClasses = "character")
+
+# use "official" evaluation data
+test <- fread("Validation_data/ALvalidationdata_workshop_nocode_preprocessed.csv", colClasses = "character")
+
+
+```
+
+## Descriptives
+
+```{r}
+head(training)
+
+head(training$job_title); summary(training$job_title)
+head(sort(table(training$job_title), decreasing = TRUE), 10)
+```
+
+# Text cleaning 
+
+Simple text cleaning... should not change much. Remove/Replace non-ASCII characters...
+
+... for training data
+
+```{r}
+training2 <- data.table(training)[!(is.na(training$combined_text))]
+allowed.codes <- unique(training$isco88)
+
+training2[, combined_text := tm::removePunctuation(combined_text)]
+training2[, combined_text := gsub("、|，|。|（|）", "", combined_text)]
+training2[, combined_text := gsub("…", "...", combined_text)]
+training2[, combined_text := gsub("é", "e", combined_text)]
+
+training2[, combined_text := stringr::str_trim(combined_text)]
+training2[, combined_text := gsub(" {2,}", " ", combined_text)]
+
+```
+
+... for test data
+
+```{r}
+test2 <- test
+test2[, combined_text := tm::removePunctuation(combined_text)]
+test2[, combined_text := gsub("、|，|。|（|）", "", combined_text)]
+test2[, combined_text := gsub("…", "...", combined_text)]
+test2[, combined_text := gsub("é", "e", combined_text)]
+
+test2[, combined_text := stringr::str_trim(combined_text)]
+test2[, ans := gsub(" {2,}", " ", combined_text)]
+
+```
+
+preparation for function `trainGweonsNearestNeighbor` (nothing really happening here)
+
+```{r}
+attr(training2, "classification") <- data.table(code = allowed.codes, title = 1:length(allowed.codes))
+class(training2) <- c(class(training2), "occupationData")
+
+class(test2) <- c(class(test2), "occupationData")
+
+training3 <- training2[, .(id = nci_trainingID, ans = combined_text, code = isco88)]
+test3 <- test2[, .(id = ID, ans = combined_text, code = isco88)]
+```
+
+What about additional non-ASCII characters? Any more preprocessing needed?
+```{r}
+stringPreprocessing <- function(ans) ans
+# View(training2[!tau::is.ascii(stringPreprocessing(combined_text)),])
+
+#training2$combined_text2 <- training2$combined_text
+#training2$combined_text2 <- iconv(training2$combined_text2, "latin1", "ASCII", sub="")
+
+# removeFaultyAndUncodableAnswers_And_PrepareForAnalysis(training, colNames = c("combined_text", "isco88"), allowed.codes = allowed.codes, allowed.codes.titles = allowed.codes)
+```
+
+# Train and evaluate model
+
+Train model (GweonsNearestNeighbor), and make predictions
+
+```{r}
+
+model <- trainGweonsNearestNeighbor(training3,
+                                    preprocessing = list(stopwords = tm::stopwords("en"), stemming = "en", strPreprocessing = FALSE, removePunct = TRUE))
+res <- predictGweonsNearestNeighbor(model, test3)
+
+```
+Accuracy (raw)
+```{r}
+res[, .SD[which.max(pred.prob), list(ans, true.code = code, pred.code, acc = code == pred.code, pred.prob)], by = id][, .(.N, mean(acc))] 
+```
+
+Accuracy (by category)
+```{r eval=FALSE, include=FALSE}
+res[, .SD[which.max(pred.prob), list(ans, true.code = code, pred.code, acc = code == pred.code, pred.prob)], by = id][, .(acc_per_cat = mean(acc)), by = true.code] 
+```
+Accuracy (by category)
+```{r}
+res[, .SD[which.max(pred.prob), list(ans, true.code = code, pred.code, acc = code == pred.code, pred.prob)], by = id][, .(acc_per_cat = mean(acc)), by = true.code][, mean(acc_per_cat)]
+```
+
+Look at some of the results
+
+```{r eval=FALSE, include=FALSE}
+#' # look at most probable answer from each id
+View(res[, .SD[which.max(pred.prob), list(ans, true.code = code, pred.code, acc = code == pred.code, pred.prob)], by = id])
+# calculate accuracy of predictions
+
+
+# choose 4 random test cases and look at the predictions
+res[id == sample(id, size = 1)][order(pred.prob, decreasing = TRUE)]
+res[id == sample(id, size = 1)][order(pred.prob, decreasing = TRUE)]
+res[id == sample(id, size = 1)][order(pred.prob, decreasing = TRUE)]
+res[id == sample(id, size = 1)][order(pred.prob, decreasing = TRUE)]
+```
+
