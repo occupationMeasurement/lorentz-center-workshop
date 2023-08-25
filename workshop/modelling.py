@@ -2,7 +2,7 @@ import mlflow
 import pandas as pd
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import preprocessing
 from xgboost import XGBClassifier
@@ -32,9 +32,9 @@ def train_model(X_train: pd.DataFrame, Y_train: pd.Series, config: dict = defaul
     elif (config["model"] == "knn"):
         model_type = KNeighborsClassifier()
         param_distributions = {'n_neighbors': range(1, 10)}
-        cv = RandomizedSearchCV(
+        cv = GridSearchCV(
             model_type,
-            param_distributions=param_distributions,
+            param_grid=param_distributions,
             cv=5,
             n_jobs=-1,
             scoring=balanced_accuracy_score,
