@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 from .config import default_config
 
-def get_embeddings(df: pd.DataFrame, config: dict = default_config) -> pd.DataFrame:
+def get_embeddings(df: pd.DataFrame, colname: str, config: dict = default_config) -> pd.DataFrame:
     """
     Turn text data into numerical representation (embeddings by default)
 
@@ -20,20 +20,20 @@ def get_embeddings(df: pd.DataFrame, config: dict = default_config) -> pd.DataFr
         print("Model Loaded.")
 
         df = df.apply(
-            lambda row: ft_model.get_sentence_vector(row["combined_text"]),
+            lambda row: ft_model.get_sentence_vector(row[colname]),
             result_type='expand',
             axis=1,
         )
     elif config["embeddings_engine"] == "bag_of_words":
         # Create a bag of words (using default settings)
         count_vect = CountVectorizer()
-        counts = count_vect.fit_transform(df["combined_text"])
+        counts = count_vect.fit_transform(df[colname])
         df = pd.DataFrame(counts.todense(), columns=count_vect.get_feature_names_out())
 
 
     # Drop the original text column (and the target)
-    if "combined_text" in df.columns:
-        df = df.drop(columns=["combined_text"])
+    if colname in df.columns:
+        df = df.drop(columns=[colname])
     if "isco88" in df.columns:
         df = df.drop(columns=["isco88"])
 

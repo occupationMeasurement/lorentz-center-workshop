@@ -9,6 +9,9 @@ default_config = {
     "only_4digit": True,
     "only_exist": True,
 
+    # Data
+    "add_isco88": True,
+
     # Embeddings
     "embeddings_engine": "fasttext",
 
