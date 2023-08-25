@@ -1,0 +1,20 @@
+Distribution of the number of different ISCO codes for the same input job title text.
+> see boxplot image: isco_codes_by_jobtitle_boxplot
+
+The average is: 1.27 different ISCO codes for the same input.
+The maximum is 136 for the text "worker".
+
+Unique job titles inputs: 10965
+- single ISCO code: 9815
+- multiple ISCO codes: 1150
+
+Distribution of the number of different ISCO codes for the combined input job title and ocupation texts.
+> boxplot image: isco_codes_by_combinedtext_boxplot
+
+The average is: 1.05 (lower than the 1.27)
+The maximum is 42 for the combined text: worker worker
+
+Unique combined text inputs: 22143
+- single ISCO code: 21402
+- multiple ISCO codes: 741
+
