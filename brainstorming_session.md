@@ -4,7 +4,7 @@ The ML-Pipeline inlcudes (1) Preprocessing, (2) generation of embeddings, (3) cl
 
 ## Preprocessing
 
-Whether and how to do preprocessing may depend on the later steps in the pipeline.
+Whether and how to do preprocessing may depend on the later steps in the pipeline. 
 
 - Capitalization (almost always recommended to upper-/lowercase text). This will depend on the type of algorithm that will be used. For example, BERT has both a cased and uncased version. For the cased version, the dictionary of words is extended to include capitalized words since they could represent different information compared to their uncased version. In such cases, one might consider not upper/lowercasing text. This will also depend on the language of the input descriptions, where capitalized words could have different meanings. 
 - Remove stopwords (irrelevant with most algorithms)
