@@ -3,8 +3,10 @@ import pandas as pd
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import RandomizedSearchCV
+from sklearn.ensemble import RandomForestClassifier
 from sklearn import preprocessing
 from xgboost import XGBClassifier
+from sklearn.metrics import balanced_accuracy_score
 
 from .config import default_config
 
@@ -16,6 +18,9 @@ def train_model(X_train: pd.DataFrame, Y_train: pd.Series, config: dict = defaul
 
     if (config["model"] == "gradient_boosting"):
         model = GradientBoostingClassifier()
+        model.fit(X_train, Y_train)
+    elif (config["model"] == "random_forest"):
+        model = RandomForestClassifier(class_weight='balanced')
         model.fit(X_train, Y_train)
     elif (config["model"] == "xgboost"):
         encoder = preprocessing.LabelEncoder().fit(Y_train)
@@ -32,6 +37,7 @@ def train_model(X_train: pd.DataFrame, Y_train: pd.Series, config: dict = defaul
             param_distributions=param_distributions,
             cv=5,
             n_jobs=-1,
+            scoring=balanced_accuracy_score,
         )
         cv.fit(X_train, Y_train)
         model = cv.best_estimator_
@@ -45,7 +51,7 @@ def train_model(X_train: pd.DataFrame, Y_train: pd.Series, config: dict = defaul
 def predict(train_output, X_test: pd.DataFrame, config: dict = default_config) -> pd.Series:
     model = train_output["model"]
 
-    if (config["model"] == "gradient_boosting" or config["model"] == "knn"):
+    if (config["model"] == "gradient_boosting" or config["model"] == "knn" or config["model"] == "random_forest"):
         y_pred = model.predict(X_test)
     elif (config["model"] == "xgboost"):
         encoder = train_output["encoder"]
