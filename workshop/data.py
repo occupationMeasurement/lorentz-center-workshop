@@ -25,7 +25,7 @@ def load_and_preprocess_data(config: dict = default_config) -> pd.DataFrame:
 def load_and_preprocess_validation_data(config: dict = default_config) -> pd.DataFrame:
     return load_and_preprocess_csv(
         DATA_DIR / "Validation_data" / "ALvalidationdata_workshop_nocode.csv",
-        min_combined_length=config["min_combined_length"],
+        min_combined_length=0,
         to_lower=config["to_lower"],
         to_upper=config["to_upper"],
         remove_punctuation=config["remove_punctuation"],
