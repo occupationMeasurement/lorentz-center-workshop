@@ -65,8 +65,10 @@ def main():
     ISCO_all_groups = pd.read_excel("ISCO88_all_groups.xlsx")
     soc_definitions = pd.read_excel("soc_2010_definitions.xls")
     soc_train_data = pd.read_csv("SOCtrainingdata_workshop.csv")
-    AL_train_data = pd.read_csv("ALtrainingdata_workshop.csv")
-    ISCO_alt_titles = pd.read_csv('ISCO-88 EN Structure and defnitions.xlsx')
+    ISCO_alt_titles = pd.read_excel('ISCO-88 EN Structure and defnitions.xlsx')
+    
+    AL_train_data = load_and_preprocess_csv("ALtrainingdata_workshop.csv")
+    AL_train, AL_test = train_split(AL_train_data)
     
     # Prepare data
     soc_alt = pd.melt(soc_alt_titles, id_vars=['O*NET-SOC Code'], 
@@ -83,13 +85,14 @@ def main():
                         value_vars=['JobTitle','JobTask'],
                         value_name='job-title').dropna().rename({"soc2010_1":'SOC'}, axis = 1)
     
-    AL_train = pd.melt(AL_train_data, id_vars=['isco88'],
-                      value_vars=['job_title', 'job_duties'],
-                      value_name='job-title').dropna().rename({'isco88':'ISCO88'}, axis = 1)
+    ISCO_all = ISCO_all_groups.rename({'ISCO88':'isco88', 'Desc':'job_title'}, axis = 1)
+    ISCO_all['job_title'] = ISCO_all.job_title.apply(preprocess_text)
+    ISCO_all = ISCO_all[ISCO_all['isco88']// 1000 > 0]
     
-    AL_test_train = train_test_split(AL_train, test_size=0.2, random_state=3)
+    ISCO_alt = ISCO_alt_titles.rename({'ISCO 88 Code':'isco88', 'Included occupations':'job_title'}, axis = 1)
+    ISCO_all['job_title'] = ISCO_all['job_title'] + ' ' + ISCO_alt['Tasks include']
     
-    AL_df = pd.concat([AL_test_train[0], ISCO_all_groups], ignore_index=True)
+    AL_df = pd.concat([AL_train, ISCO_all_groups], ignore_index=True)
     
     # Divide into train and test
     soc_train_test = train_test_split(soc_train, test_size=0.2, random_state=3)
