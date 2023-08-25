@@ -66,57 +66,29 @@ def main():
     soc_definitions = pd.read_excel("soc_2010_definitions.xls")
     soc_train_data = pd.read_csv("SOCtrainingdata_workshop.csv")
     ISCO_alt_titles = pd.read_excel('ISCO-88 EN Structure and defnitions.xlsx')
+    valid = load_and_preprocess_csv('ALvalidationdata_workshop_nocode.csv', min_combined_length = 0)
+    
+    valid = valid[valid['isco88'].str[0]!= str(0)]
     
     AL_train_data = load_and_preprocess_csv("ALtrainingdata_workshop.csv")
     AL_train, AL_test = train_split(AL_train_data)
     
-    # Prepare data
-    soc_alt = pd.melt(soc_alt_titles, id_vars=['O*NET-SOC Code'], 
-                      value_vars=['Alternate Title', 'Short Title'],
-                      value_name="job-title").dropna()
+    write_for_fasttext(AL_train, 'combined_text', 'isco88', 'AL_raw_ft_train.txt')
+    write_for_fasttext(AL_test, 'combined_text', 'isco88', 'AL_ft_test.txt')
+    write_for_fasttext(valid, 'combined_text', 'isco88', 'AL_ft_validation.txt')
     
-    soc_alt["SOC"] = soc_alt["O*NET-SOC Code"].str[0:-3]
+    ISCO_all_groups['Desc'] = ISCO_all_groups['Desc'].apply(preprocess_text) 
+    ISCO_all_groups = ISCO_all_groups[ISCO_all_groups.ISCO88 // 1000 > 0].rename({'ISCO88':'isco88', 'Desc':'combined_text'}, axis = 1)
     
-    soc_def = pd.melt(soc_definitions, id_vars=["SOC Code"], 
-                      value_vars=['SOC Title', 'SOC Definition'],
-                      value_name="job-title").dropna().rename({'SOC Code':'SOC'}, axis = 1)
+    ISCO_alt_titles['combined_text'] = str(ISCO_alt_titles['Title EN']) + ' ' + str(ISCO_alt_titles['Definition']) + ' ' + str(ISCO_alt_titles['Tasks include']) + ' ' + str(ISCO_alt_titles['Included occupations'])
+    ISCO_alt_titles['combined_text'] = ISCO_alt_titles['combined_text'].apply(preprocess_text) 
+    ISCO_alt_titles = ISCO_alt_titles[ISCO_alt_titles['ISCO 88 Code'] // 1000 > 0].rename({'ISCO 88 Code':'isco88', 'Desc':'combined_text'}, axis = 1)
     
-    soc_train = pd.melt(soc_train_data, id_vars=["soc2010_1"],
-                        value_vars=['JobTitle','JobTask'],
-                        value_name='job-title').dropna().rename({"soc2010_1":'SOC'}, axis = 1)
+    AL_train_extended = pd.concat([AL_train, ISCO_all_groups, ISCO_alt_titles], ignore_index=True)
+    write_for_fasttext(AL_train_extended, 'combined_text', 'isco88', 'AL_extended_ft_train.txt')
     
-    ISCO_all = ISCO_all_groups.rename({'ISCO88':'isco88', 'Desc':'job_title'}, axis = 1)
-    ISCO_all['job_title'] = ISCO_all.job_title.apply(preprocess_text)
-    ISCO_all = ISCO_all[ISCO_all['isco88']// 1000 > 0]
-    
-    ISCO_alt = ISCO_alt_titles.rename({'ISCO 88 Code':'isco88', 'Included occupations':'job_title'}, axis = 1)
-    ISCO_all['job_title'] = ISCO_all['job_title'] + ' ' + ISCO_alt['Tasks include']
-    
-    AL_df = pd.concat([AL_train, ISCO_all_groups], ignore_index=True)
-    
-    # Divide into train and test
-    soc_train_test = train_test_split(soc_train, test_size=0.2, random_state=3)
-    
-    # Merge with extra data
-    soc_df = pd.concat([soc_alt,soc_def,soc_train_test[0]], ignore_index=True)
-    
-    # Apply text preprocessing
-    soc_df["job-title-ready"] = soc_df["job-title"].apply(lambda x: preprocess_text(x))
-    
-    AL_df['job-title-ready'] = AL_df["job-title"].apply(lambda x: preprocess_text(str(x)))
-    
-    soc_test = soc_train_test[1]
-    soc_test["job-title-ready"] = soc_test["job-title"].apply(lambda x: preprocess_text(x))
-    
-    AL_test = AL_test_train[1]
-    AL_test['job-title-ready'] = AL_test["job-title"].apply(lambda x: preprocess_text(str(x)))
+    valid[''].apply(lambda x: preprocess_text(x, )).rename('')
 
-    # Write to file
-    write_for_fasttext(soc_df, 'job-title-ready', 'SOC', 'soc_ft_train.txt')
-    write_for_fasttext(soc_test, 'job-title-ready', 'SOC', 'soc_ft_test.txt')
-    
-    write_for_fasttext(AL_df, 'job-title-ready', 'ISCO88', 'AL_ft_train.txt')
-    write_for_fasttext(AL_test, 'job-title-ready', 'ISCO88', 'AL_ft_test.txt')
     
 
 ###########################################################
